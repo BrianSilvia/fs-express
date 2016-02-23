@@ -1,0 +1,43 @@
+{
+  "name": "fs-express",
+  "version": "0.1.0",
+  "description": "An express middleware node module for managing a server-side file system via http",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test",
+    "eslint-pre-commit": "./scripts/eslint-pre-commit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustinLivi/fs-express.git"
+  },
+  "keywords": [
+    "fs",
+    "express",
+    "http"
+  ],
+  "author": "Brinkbit",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JustinLivi/fs-express/issues"
+  },
+  "homepage": "https://github.com/JustinLivi/fs-express#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "http-fs-node": "github:brinkbit/http-fs-node",
+    "request": "^2.69.0"
+  },
+  "devDependencies": {
+    "brinkbit-style-es6": "^1.0.3",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^2.2.0",
+    "mocha": "^2.4.5",
+    "pre-commit": "^1.1.2",
+    "supertest": "^1.2.0"
+  },
+  "pre-commit": [
+    "eslint-pre-commit"
+  ]
+}
