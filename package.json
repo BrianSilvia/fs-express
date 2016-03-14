@@ -23,14 +23,19 @@
   },
   "homepage": "https://github.com/JustinLivi/fs-express#readme",
   "dependencies": {
-    "express": "^4.13.4",
+    "busboy": "^0.2.12",
     "http-fs-node": "github:brinkbit/http-fs-node",
+    "ramda": "^0.19.1",
     "request": "^2.69.0"
   },
   "devDependencies": {
+    "bluebird": "^3.3.1",
     "brinkbit-style-es6": "^1.0.3",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
+    "chai-http": "^2.0.1",
+    "express": "^4.13.4",
+    "fs-extra": "^0.26.5",
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
     "mocha": "^2.4.5",
