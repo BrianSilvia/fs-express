@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JustinLivi/fs-express.git"
+    "url": "git+https://github.com/BrianSilvia/fs-express.git"
   },
   "keywords": [
     "fs",
@@ -19,18 +19,21 @@
   "author": "Brinkbit",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JustinLivi/fs-express/issues"
+    "url": "https://github.com/Brinkbit/fs-express/issues"
   },
-  "homepage": "https://github.com/JustinLivi/fs-express#readme",
+  "homepage": "https://github.com/Brinkbit/fs-express#readme",
   "dependencies": {
     "busboy": "^0.2.12",
-    "http-fs-node": "github:brinkbit/http-fs-node",
+    "fs-brinkbit-permissions": "git+https://github.com/BrianSilvia/fs-brinkbit-permissions",
+    "fs-s3-mongo": "git+https://github.com/BrianSilvia/fs-s3-mongo.git",
+    "http-fs-node": "git+https://github.com/BrianSilvia/http-fs-node.git",
     "ramda": "^0.19.1",
     "request": "^2.69.0"
   },
   "devDependencies": {
     "bluebird": "^3.3.1",
     "brinkbit-style-es6": "^1.0.3",
+    "buffertools": "^2.1.3",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "chai-http": "^2.0.1",
