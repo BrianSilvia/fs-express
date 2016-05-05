@@ -10,6 +10,22 @@ const http = require( 'http' );
 const bluebird = require( 'bluebird' );
 const fs = bluebird.promisifyAll( require( 'fs-extra' ));
 const buffertools = require( 'buffertools' );
+const permissions = require( 'fs-brinkbit-permissions' );
+const mongoose = require( 'mongoose' );
+const Schema = mongoose.Schema;
+const fileSchema = new Schema({
+    _id: String,
+    mimeType: String, // http://www.freeformatter.com/mime-types-list.html (includes folder type)
+    size: Number,
+    dateCreated: Date,
+    lastModified: Date,
+    parents: [String],
+    name: String, // if the resource is a folder, it ends in a '/'
+});
+const File = mongoose.model( 'files', fileSchema );
+const conn = mongoose.connection;
+mongoose.Promise = Promise;
+
 chai.use( chaiaspromised );
 
 const app = express();
@@ -25,108 +41,64 @@ function binaryParser( res, callback ) {
     });
 }
 
+function connect( config ) {
+    return new Promise(( resolve, reject ) => {
+        if ( conn.readyState === 1 ) {
+            // we're already connected
+            return resolve();
+        }
+        const ip = config && config.ip ? config.ip : process.env.MONGO_IP || 'localhost';
+        mongoose.connect( `mongodb://${ip}:27017/test` );
+        conn.on( 'error', reject );
+        conn.on( 'open', resolve );
+    });
+}
+
 describe( 'action', function() {
     before( function( done ) {
-        // mock the datastore module
-        const dataStore = {
-            read: ( resourceId ) => {
-                switch ( resourceId ) {
-                    case '8d461483-e701-47ca-8788-c6210550fdb9': return Promise.resolve({
-                        name: 'animations',
-                        parent: null,
-                    });
-                    case '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e': return Promise.resolve( 'http://localhost:3000/media/animations/fireball.gif' );
-                    case '614dd78b-0d7b-4777-8aa6-c9d20dfb3032': return Promise.resolve( 'http://localhost:3000/media/animations/player.gif' );
-                    case '0dfa3088-2ab8-4a52-9c9f-3fa87c1f4ccb': return Promise.resolve({
-                        name: 'spritemaps',
-                        parent: null,
-                    });
-                    case '8eb7c191-21a9-4f4a-bf50-9fb01006f549': return Promise.resolve( 'http://localhost:3000/media/spritemaps/powerup.png' );
-                    default: return Promise.reject();
-                }
-            },
-            alias: ( resourceId ) => {
-                switch ( resourceId ) {
-                    case 'animations':
-                        return Promise.resolve({
-                            data: {
-                                GUID: '8d461483-e701-47ca-8788-c6210550fdb9',
-                            },
-                        });
-                    case 'animations/fireball.gif': return Promise.resolve({
-                        data: {
-                            GUID: '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e',
-                        },
-                    });
-                    default: return Promise.reject();
-                }
-            },
-            // TODO
-            search: () => {},
-            inspect: ( resourceId, fields ) => {
-                switch ( resourceId ) {
-                    case '614dd78b-0d7b-4777-8aa6-c9d20dfb3032':
-                        const source = {
-                            type: 'file',
-                            size: 1234567890,
-                            name: 'player.gif',
-                            parent: '8d461483-e701-47ca-8788-c6210550fdb9',
-                            dateCreated: 1439765335,
-                            lastModified: 1439765353,
-                        };
-                        if ( !fields ) return Promise.resolve({ data: source });
-                        const data = {};
-                        for ( const field in source ) {
-                            if ( fields.indexOf( field ) === -1 ) continue;
-                            data[field] = source[field];
-                        }
-                        return Promise.resolve({ data });
-                    default: return Promise.reject();
-                }
-            },
-            download: () => {},
-            create: ( resourceId, type, name, content ) => {
-                switch ( resourceId ) {
-                    case '0dfa3088-2ab8-4a52-9c9f-3fa87c1f4ccb':
-                        return new Promise(( resolve, reject ) => {
-                            content.pipe( fs.createWriteStream( `./test/testfiles/media/spritemaps/${name}` ));
-                            content.on( 'error', reject );
-                            content.on( 'end', () => resolve({ data: 'efc2cd1d-91d2-4cfe-839e-0ed9a1a04ad6' }));
-                        });
-                    default: return Promise.reject();
-                }
-            },
-            bulk: () => {},
-            copy: () => {},
-            update: () => {},
-            move: () => {},
-            rename: () => {},
-            destroy: () => {},
-        };
-
-        const permissions = {
-            verify: () => {
-                return Promise.resolve();
-            },
-        };
-
         const fsExpress = require( '../index.js' );
 
         app.use( express.static( __dirname + '/testfiles' ));
-        // store the userId in req.userId
+
         app.use(( req, res, next ) => {
             req.userId = 'userId';
             next();
         });
-        app.use( fsExpress({ dataStore, permissions }));
 
-        // serve up actual static content to query for
-        app.server = http.createServer( app );
-        app.server.listen( 3000, done );
+        // Connect to mongo and seed the db
+        connect()
+        .then( function() {
+            const file1 = new File({
+                '_id': '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e',
+                'mimeType': 'image/gif',
+                'size': 999,
+                'dateCreated': 1462329089,
+                'lastModified': 1462329089,
+                'parents': ['12345'],
+                'name': 'fireball.gif',
+            });
+            file1.save();
+
+            // Returns the dataStore object, after the mongoose connection is made
+            require( 'fs-s3-mongo' )({
+                s3: {
+                    bucket: process.env.AWS_TEST_BUCKET,
+                    region: process.env.AWS_TEST_REGION,
+                },
+            })
+            .then( dataStore => {
+                app.use( fsExpress({ dataStore, permissions }));
+
+                // serve up actual static content to query for
+                app.server = http.createServer( app );
+                app.server.listen( 3000, done );
+            });
+        });
     });
 
     after( function() {
         app.server.close();
+        File.remove({}).exec();
     });
 
     describe( 'get', function() {
