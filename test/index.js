@@ -11,6 +11,20 @@ const bluebird = require( 'bluebird' );
 const fs = bluebird.promisifyAll( require( 'fs-extra' ));
 const buffertools = require( 'buffertools' );
 const permissions = require( 'fs-brinkbit-permissions' );
+const mongoose = require( 'mongoose' );
+const Schema = mongoose.Schema;
+const fileSchema = new Schema({
+    _id: String,
+    mimeType: String, // http://www.freeformatter.com/mime-types-list.html (includes folder type)
+    size: Number,
+    dateCreated: Date,
+    lastModified: Date,
+    parents: [String],
+    name: String, // if the resource is a folder, it ends in a '/'
+});
+const File = mongoose.model( 'files', fileSchema );
+const conn = mongoose.connection;
+mongoose.Promise = Promise;
 
 chai.use( chaiaspromised );
 
@@ -27,6 +41,19 @@ function binaryParser( res, callback ) {
     });
 }
 
+function connect( config ) {
+    return new Promise(( resolve, reject ) => {
+        if ( conn.readyState === 1 ) {
+            // we're already connected
+            return resolve();
+        }
+        const ip = config && config.ip ? config.ip : process.env.MONGO_IP || 'localhost';
+        mongoose.connect( `mongodb://${ip}:27017/test` );
+        conn.on( 'error', reject );
+        conn.on( 'open', resolve );
+    });
+}
+
 describe( 'action', function() {
     before( function( done ) {
         const fsExpress = require( '../index.js' );
@@ -38,24 +65,40 @@ describe( 'action', function() {
             next();
         });
 
-        // Returns the dataStore object, after the mongoose connection is made
-        require( 'fs-s3-mongo' )({
-            s3: {
-                bucket: process.env.AWS_TEST_BUCKET,
-                region: process.env.AWS_TEST_REGION,
-            },
-        })
-        .then( dataStore => {
-            app.use( fsExpress({ dataStore, permissions }));
+        // Connect to mongo and seed the db
+        connect()
+        .then( function() {
+            const file1 = new File({
+                '_id': '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e',
+                'mimeType': 'image/gif',
+                'size': 999,
+                'dateCreated': 1462329089,
+                'lastModified': 1462329089,
+                'parents': ['12345'],
+                'name': 'fireball.gif',
+            });
+            file1.save();
 
-            // serve up actual static content to query for
-            app.server = http.createServer( app );
-            app.server.listen( 3000, done );
+            // Returns the dataStore object, after the mongoose connection is made
+            require( 'fs-s3-mongo' )({
+                s3: {
+                    bucket: process.env.AWS_TEST_BUCKET,
+                    region: process.env.AWS_TEST_REGION,
+                },
+            })
+            .then( dataStore => {
+                app.use( fsExpress({ dataStore, permissions }));
+
+                // serve up actual static content to query for
+                app.server = http.createServer( app );
+                app.server.listen( 3000, done );
+            });
         });
     });
 
     after( function() {
         app.server.close();
+        File.remove({}).exec();
     });
 
     describe( 'get', function() {
