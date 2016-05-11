@@ -12,17 +12,11 @@ const fs = bluebird.promisifyAll( require( 'fs-extra' ));
 const buffertools = require( 'buffertools' );
 const permissions = require( 'fs-brinkbit-permissions' );
 const mongoose = require( 'mongoose' );
-const Schema = mongoose.Schema;
-const fileSchema = new Schema({
-    _id: String,
-    mimeType: String, // http://www.freeformatter.com/mime-types-list.html (includes folder type)
-    size: Number,
-    dateCreated: Date,
-    lastModified: Date,
-    parents: [String],
-    name: String, // if the resource is a folder, it ends in a '/'
-});
-const File = mongoose.model( 'files', fileSchema );
+const mongoConfig = require( 'the-brink-mongodb' );
+
+const File = require( './schemas/fileSchema.js' );
+const Permission = require( './schemas/permissionSchema.js' );
+
 const conn = mongoose.connection;
 mongoose.Promise = Promise;
 
@@ -41,14 +35,14 @@ function binaryParser( res, callback ) {
     });
 }
 
-function connect( config ) {
+function connect() {
     return new Promise(( resolve, reject ) => {
         if ( conn.readyState === 1 ) {
             // we're already connected
             return resolve();
         }
-        const ip = config && config.ip ? config.ip : process.env.MONGO_IP || 'localhost';
-        mongoose.connect( `mongodb://${ip}:27017/test` );
+
+        mongoose.connect( mongoConfig.mongodb.uri );
         conn.on( 'error', reject );
         conn.on( 'open', resolve );
     });
@@ -78,6 +72,28 @@ describe( 'action', function() {
                 'name': 'fireball.gif',
             });
             file1.save();
+
+            const file2 = new File({
+                '_id': '614dd78b-0d7b-4777-8aa6-c9d20dfb3032',
+                'mimeType': 'image/gif',
+                'size': 999,
+                'dateCreated': 1462329089,
+                'lastModified': 1462329089,
+                'parents': ['12345'],
+                'name': 'player.gif',
+            });
+            file2.save();
+
+            const permission2 = new Permission({
+                resourceType: 'file',
+                resourceId: '614dd78b-0d7b-4777-8aa6-c9d20dfb3032',
+                userId: 'userId',
+                read: true,
+                write: true,
+                destroy: true,
+            });
+            permission2.save();
+
 
             // Returns the dataStore object, after the mongoose connection is made
             require( 'fs-s3-mongo' )({
