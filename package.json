@@ -29,6 +29,7 @@
     "http-fs-node": "git+https://github.com/Brinkbit/http-fs-node.git",
     "ramda": "^0.19.1",
     "request": "^2.69.0",
+    "brinkbit-logger": "^0.2.2",
     "the-brink-mongodb": "file:///Users/Brian/Documents/brinkbit/the-brink-mongodb"
   },
   "devDependencies": {
