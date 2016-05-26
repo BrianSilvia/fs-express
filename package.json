@@ -30,7 +30,7 @@
     "ramda": "^0.19.1",
     "request": "^2.69.0",
     "brinkbit-logger": "^0.2.2",
-    "the-brink-mongodb": "file:///Users/Brian/Documents/brinkbit/the-brink-mongodb"
+    "brinkbit-mongodb": "git+https://github.com/Brinkbit/brinkbit-mongodb.git",
   },
   "devDependencies": {
     "bluebird": "^3.3.1",

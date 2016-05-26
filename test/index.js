@@ -12,13 +12,19 @@ const fs = bluebird.promisifyAll( require( 'fs-extra' ));
 const buffertools = require( 'buffertools' );
 const permissions = require( 'fs-brinkbit-permissions' );
 const mongoose = require( 'mongoose' );
-const mongoConfig = require( 'the-brink-mongodb' );
-
-const File = require( './schemas/fileSchema.js' );
-const Permission = require( './schemas/permissionSchema.js' );
-
 const conn = mongoose.connection;
-mongoose.Promise = Promise;
+
+try {
+    const File = require( './schemas/fileSchema.js' )( conn ).File;
+    // const Permission = require( './schemas/fileSchema.js' )( conn ).Permission;
+}
+catch ( err ) {
+    console.log( err );
+}
+
+const db = require( 'brinkbit-mongodb' )( conn );
+
+
 
 chai.use( chaiaspromised );
 
@@ -35,19 +41,6 @@ function binaryParser( res, callback ) {
     });
 }
 
-function connect() {
-    return new Promise(( resolve, reject ) => {
-        if ( conn.readyState === 1 ) {
-            // we're already connected
-            return resolve();
-        }
-
-        mongoose.connect( mongoConfig.mongodb.uri );
-        conn.on( 'error', reject );
-        conn.on( 'open', resolve );
-    });
-}
-
 describe( 'action', function() {
     before( function( done ) {
         const fsExpress = require( '../index.js' );
@@ -60,7 +53,7 @@ describe( 'action', function() {
         });
 
         // Connect to mongo and seed the db
-        connect()
+        db.connect()
         .then( function() {
             const file1 = new File({
                 '_id': '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e',
