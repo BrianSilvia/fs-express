@@ -5,11 +5,11 @@ const router = express.Router(); // eslint-disable-line new-cap
 const request = require( 'request' );
 const Busboy = require( 'busboy' );
 const R = require( 'ramda' );
-const logger = require( 'brinkbit-logger' )({ __filename, transport: 'production' });
+const logger = require( 'brinkbit-logger' )({ __filename });
 let fs = require( 'http-fs-node' );
 
 const standardMethod = R.curry(( method, req, res, data ) => {
-    logger.info( `Calling with params -- resource: ${req.params.resource}, userId: ${req.userId}, data: ${data}` );
+    logger.info( `Calling with params -- resource: '${req.params.resource}', userId: '${req.userId}', data: '${JSON.stringify( data )}'` );
     return fs[method]( req.params.resource, req.userId, data );
 });
 
@@ -20,6 +20,7 @@ const handlePost = R.curry(( limits, req, res, data ) => {
             const busboy = new Busboy({ headers: req.headers, limits });
             const promises = [];
             busboy.on( 'file', ( fieldname, content, name, encoding, type ) => {
+                logger.info( `Resource: ${req.params.resource}, user: ${req.userId}, name: ${name}, type: ${type}` );
                 promises.push(
                     fs.POST( // eslint-disable-line new-cap
                         req.params.resource,
@@ -56,14 +57,17 @@ module.exports = config => {
         logger.info( `Handing ${req.method} request` );
         methods[req.method]( req, res, query )
         .then( data => {
-            if ( req.method === 'GET' && ( !query.action || query.action === 'read' )) {
-                logger.info( `Calling into get for ${data}` );
+            logger.info( `Handling top level response back to client: '${JSON.stringify( data )}'` );
+
+            // Tests data to see if it's an array (GET on a folder)
+            if ( req.method === 'GET' && R.type( data ) !== 'Array' && ( !query.action || query.action === 'read' )) {
+                logger.info( `Sending '${data}' back to client` );
                 request.get( data ).pipe( res );
             }
             else {
-                logger.info( `Sending back ${data.data}` );
+                logger.info( `Sending ${JSON.stringify( data )} back to the client` );
                 res.set( 'Content-Type', 'application/vnd.api+json' );
-                res.send( data.data );
+                res.send( data );
             }
         })
         .catch( data => {
