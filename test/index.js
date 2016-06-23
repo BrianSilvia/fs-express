@@ -1,6 +1,6 @@
 'use strict';
 
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'production';
 
 const chai = require( 'chai' );
 const expect = chai.expect;
@@ -335,7 +335,7 @@ describe( 'action', function() {
                 const response = JSON.parse( res.body );
                 expect( res.statusCode ).to.equal( 200 );
                 expect( response[0]).to.have.deep.property( '_id' );
-                testingGUID = response._id;
+                testingGUID = response[0]._id;
             });
         });
     });
@@ -359,6 +359,7 @@ describe( 'action', function() {
             );
         });
     });
+
     describe( 'delete', function() {
         it( 'should delete the s3 object and the mongodb document', function( done ) {
             supertest( app )
