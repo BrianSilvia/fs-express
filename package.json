@@ -23,10 +23,12 @@
   },
   "homepage": "https://github.com/Brinkbit/fs-express#readme",
   "dependencies": {
+    "brinkbit-logger": "^0.2.2",
+    "brinkbit-mongodb": "Brinkbit/brinkbit-mongodb",
     "busboy": "^0.2.12",
-    "fs-brinkbit-permissions": "git+https://github.com/Brinkbit/fs-brinkbit-permissions",
-    "fs-s3-mongo": "git+https://github.com/Brinkbit/fs-s3-mongo.git",
-    "http-fs-node": "git+https://github.com/Brinkbit/http-fs-node.git",
+    "fs-brinkbit-permissions": "Brinkbit/fs-brinkbit-permissions",
+    "fs-s3-mongo": "Brinkbit/fs-s3-mongo",
+    "http-fs-node": "Brinkbit/http-fs-node",
     "ramda": "^0.19.1",
     "request": "^2.69.0"
   },
