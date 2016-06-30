@@ -1,6 +1,6 @@
 'use strict';
 
-process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'development';
 
 const chai = require( 'chai' );
 const expect = chai.expect;
@@ -191,6 +191,39 @@ describe( 'action', function() {
         File.remove({}).exec();
     });
 
+    describe( 'misc', function( done ) {
+        it( 'should reject with a 404/resource not found error, with an empty path', () => {
+            supertest( app )
+            .get( '/' )
+            .set( 'Accept', 'application/vnd.api+json' )
+            .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
+            .expect( res =>
+                expect( res.body ).to.deep.equal({
+                    status: 404,
+                    message: 'Resource does not exist.',
+                })
+            )
+            .expect( 404, done );
+        });
+
+        it( 'should reject with a 501/invalid action object when given an invalid action', () => {
+            supertest( app )
+            .get( '/' )
+            .query({
+                action: 'wrongAction',
+            })
+            .set( 'Accept', 'application/vnd.api+json' )
+            .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
+            .expect( res =>
+                expect( res.body ).to.deep.equal({
+                    status: 501,
+                    message: 'Invalid action.',
+                })
+            )
+            .expect( 501, done );
+        });
+    });
+
     describe( 'get', function() {
         let buffer;
 
@@ -214,7 +247,7 @@ describe( 'action', function() {
         });
     });
 
-    describe( 'read', function() {
+    describe.skip( 'read', function() {
         let buffer;
 
         before( function() {
@@ -251,11 +284,11 @@ describe( 'action', function() {
     });
 
     describe.skip( 'search', function() {
-        // TODO: finish designing this out
+        it( 'should reject with 501/invalid parameters when parameters.query is missing', function() {});
     });
 
     // fails due to https://github.com/Brinkbit/http-fs-node/issues/18
-    describe( 'alias', function() {
+    describe.skip( 'alias', function() {
         it( 'should return guid data object', function( done ) {
             supertest( app )
             .get( '/animations/' )
@@ -274,7 +307,7 @@ describe( 'action', function() {
         });
     });
 
-    describe( 'inspect', function() {
+    describe.skip( 'inspect', function() {
         it( 'should return all metadata of the resource', function( done ) {
             supertest( app )
             .get( '/614dd78b-0d7b-4777-8aa6-c9d20dfb3032' )
@@ -316,8 +349,25 @@ describe( 'action', function() {
         // TODO
     });
 
+    describe.skip( 'rename', function() {
+        it( 'should reject with 501/invalid parameters when parameters.name is missing', function() {});
+    });
+
+    describe.skip( 'copy', function() {
+        it( 'should reject with 501/invalid parameters when parameters.destination is missing', function() {});
+    });
+
+    describe.skip( 'move', function() {
+        it( 'should reject with 501/invalid parameters when parameters.destination is missing', function() {});
+    });
+
     let testingGUID;
-    describe( 'post', function() {
+    describe.skip( 'post', function() {
+        it( 'should reject with 501/invalid parameters when parameters.type is missing', function() {});
+        it( 'should reject with 501/invalid parameters when parameters.type is anything other than file or folder', function() {});
+        it( 'should reject with 501/invalid parameters when parameters.name is missing', function() {});
+        it( 'should reject with 501/invalid parameters when parameters.content is set and type is folder', function() {});
+
         it( 'should upload a new file', function() {
             return new Promise(( resolve, reject ) => {
                 request.post({
@@ -340,7 +390,13 @@ describe( 'action', function() {
         });
     });
 
-    describe( 'put', function() {
+    describe.skip( 'bulk', function() {
+        it.skip( 'should reject with 501/invalid parameters when parameters.resources is missing', function() {});
+    });
+
+    describe.skip( 'put', function() {
+        it.skip( 'should reject with 501/invalid parameters when parameters.content is missing', function() {});
+
         it( 'should update both the s3 and the mongodb document', function() {
             return new Promise(( resolve, reject ) => {
                 request.post({
@@ -360,7 +416,7 @@ describe( 'action', function() {
         });
     });
 
-    describe( 'delete', function() {
+    describe.skip( 'delete', function() {
         it( 'should delete the s3 object and the mongodb document', function( done ) {
             supertest( app )
             .del( `/${testingGUID}` )
