@@ -7,6 +7,7 @@ const Busboy = require( 'busboy' );
 const R = require( 'ramda' );
 const logger = require( 'brinkbit-logger' )({ __filename });
 let fs = require( 'http-fs-node' );
+const http = require( 'http' );
 
 const standardMethod = R.curry(( method, req, res, data ) => {
     logger.info( `Calling with params -- resource: '${req.params.resource}', userId: '${req.userId}', data: '${JSON.stringify( data )}'` );
@@ -41,7 +42,27 @@ const handlePost = R.curry(( limits, req, res, data ) => {
     logger.warning( 'Data passed in -- ignoring for now' );
 });
 
-module.exports = config => {
+module.exports.start = () => {
+    const app = express();
+
+    return require( 'fs-s3-mongo' )({
+        s3: {
+            bucket: process.env.AWS_TEST_BUCKET,
+            region: process.env.AWS_TEST_REGION,
+        },
+    })
+    .then( dataStore => {
+        const permissions = require( 'fs-brinkbit-permissions' );
+        app.use( module.exports.init({ dataStore, permissions }));
+
+        // serve up actual static content to query for
+        app.server = http.createServer( app );
+        app.server.listen( 3000 );
+        return app;
+    });
+};
+
+module.exports.init = config => {
     logger.info( `Initing module with config: ${config}` );
     fs = fs( config );
 
