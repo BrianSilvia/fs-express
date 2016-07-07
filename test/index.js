@@ -35,7 +35,7 @@ let playerFile;
 let app;
 describe( 'action', function() {
     before( function( done ) {
-        require( '../index.js' ).start()
+        require( '../src/index.js' ).start()
         .then( _app => {
             app = _app;
 
