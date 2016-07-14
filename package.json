@@ -4,6 +4,7 @@
   "description": "An express middleware node module for managing a server-side file system via http",
   "main": "index.js",
   "scripts": {
+    "start": "pm2 start src/app.js --no-daemon",
     "debug": "cross-env NODE_ENV=debug mocha test/index.js",
     "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha test/index.js",
     "eslint-pre-commit": "./scripts/eslint-pre-commit"
@@ -29,7 +30,6 @@
     "busboy": "^0.2.12",
     "fs-brinkbit-permissions": "Brinkbit/fs-brinkbit-permissions",
     "fs-s3-mongo": "Brinkbit/fs-s3-mongo",
-    "http": "0.0.0",
     "http-fs-node": "Brinkbit/http-fs-node",
     "ramda": "^0.19.1",
     "request": "^2.69.0"

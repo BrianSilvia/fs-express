@@ -6,6 +6,7 @@ const request = require( 'request' );
 const Busboy = require( 'busboy' );
 const R = require( 'ramda' );
 const logger = require( 'brinkbit-logger' )({ __filename });
+const mongoose = require( 'mongoose' );
 let fs = require( 'http-fs-node' );
 const http = require( 'http' );
 
@@ -42,14 +43,15 @@ const handlePost = R.curry(( limits, req, res, data ) => {
     logger.warning( 'Data passed in -- ignoring for now' );
 });
 
-module.exports.start = () => {
-    const app = express();
+const app = express();
 
+app.start = () => {
     return require( 'fs-s3-mongo' )({
         s3: {
             bucket: process.env.AWS_TEST_BUCKET,
             region: process.env.AWS_TEST_REGION,
         },
+        mongo: mongoose.connection,
     })
     .then( dataStore => {
         const permissions = require( 'fs-brinkbit-permissions' );
@@ -57,12 +59,12 @@ module.exports.start = () => {
 
         // serve up actual static content to query for
         app.server = http.createServer( app );
-        app.server.listen( 3000 );
+        app.server.listen( process.env.APP_PORT || 3000 );
         return app;
     });
 };
 
-module.exports.init = config => {
+app.init = config => {
     logger.info( `Initing module with config: ${config}` );
     fs = fs( config );
 
@@ -99,3 +101,5 @@ module.exports.init = config => {
     });
     return router;
 };
+
+module.exports = exports = app;

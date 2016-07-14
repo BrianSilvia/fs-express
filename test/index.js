@@ -1,6 +1,6 @@
 'use strict';
 
-process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'debug';
 
 const express = require( 'express' );
 const chai = require( 'chai' );
@@ -35,10 +35,10 @@ let playerFile;
 let app;
 describe( 'action', function() {
     before( function( done ) {
-        require( '../src/index.js' ).start()
-        .then( _app => {
-            app = _app;
-
+        app = require( '../src/index.js' );
+        db.connect()
+        .then(() => app.start())
+        .then(() => {
             app.use( express.static( __dirname + '/testfiles' ));
 
             app.use(( req, res, next ) => {
@@ -349,7 +349,7 @@ describe( 'action', function() {
         it( 'should upload a new file', function() {
             return new Promise(( resolve, reject ) => {
                 request.post({
-                    url: 'http://localhost:3000/f3d9a45f-6972-4a21-8a4b-073de06b6a4b',
+                    url: `http://localhost:${process.env.APP_PORT}/f3d9a45f-6972-4a21-8a4b-073de06b6a4b`,
                     formData: {
                         // Pass data via Streams
                         content: fs.createReadStream( `${__dirname}/testfiles/explosion.png` ),
@@ -378,7 +378,7 @@ describe( 'action', function() {
         it( 'should update both the s3 and the mongodb document', function() {
             return new Promise(( resolve, reject ) => {
                 request.post({
-                    url: `http://localhost:3000/${testingGUID}`,
+                    url: `http://localhost:${process.env.APP_PORT}/${testingGUID}`,
                     formData: {
                         // Pass data via Streams
                         content: fs.createReadStream( `${__dirname}/testfiles/player.png` ),
