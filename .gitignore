@@ -8,7 +8,8 @@ pids
 *.seed
 
 # Coverage html file
-coverage/codeCoverage.html
+coverage
+.nyc_output
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
