@@ -31,8 +31,43 @@ function binaryParser( res, callback ) {
     });
 }
 
-let playerFile;
+const ROOT_FOLDER = 'root';
+const EXPLOSION_PNG = 'f283fba9-8b10-454c-b656-ee93c068da26';
+const PLAYER_PNG = '4b82b9df-d461-485c-9e6a-bdf5f94ae717';
+const ANIMATIONS_FOLDER = '8d461483-e701-47ca-8788-c6210550fdb9';
+const FIREBALL_GIF = '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e';
+const PLAYER_GIF = '614dd78b-0d7b-4777-8aa6-c9d20dfb3032';
+const SPRITEMAPS_FOLDER = 'f3d9a45f-6972-4a21-8a4b-073de06b6a4b';
+const POWERUP_PNG = '0dfa3088-2ab8-4a52-9c9f-3fa87c1f4ccb';
+
+/* Test directory structure
+    / (root)
+        explosion.png
+        player.png
+        animations/
+            fireball.gif
+            player.gif
+        spritemaps/
+            powerup.png
+*/
+
 let app;
+let rootExplosionFile;
+let rootPlayerFile;
+let animationsFolder;
+let fireballFile;
+let playerFile;
+let spritemapsFolder;
+let powerupFile;
+
+let rootExplosionFileObj;
+let rootPlayerFileObj;
+let animationsFolderObj;
+let fireballFileObj;
+let playerFileObj;
+let spritemapsFolderObj;
+let powerupFileObj;
+
 describe( 'action', function() {
     before( function( done ) {
         app = require( '../src/index.js' );
@@ -48,110 +83,105 @@ describe( 'action', function() {
 
             db.connect()
             .then( function() {
-                const rootFile = new File({
-                    '_id': 'root',
+                const rootFileObj = {
+                    '_id': ROOT_FOLDER,
                     'mimeType': 'folder',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
                     'parents': [],
                     'name': '/',
-                });
+                };
+                const rootFile = new File( rootFileObj );
                 rootFile.save();
 
-                const rootExplosionFile = new File({
-                    '_id': 'f283fba9-8b10-454c-b656-ee93c068da26',
+                rootExplosionFileObj = {
+                    '_id': EXPLOSION_PNG,
                     'mimeType': 'image/png',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
-                    'parents': ['root'],
+                    'parents': [ROOT_FOLDER],
                     'name': 'explosion.png',
-                });
+                };
+                rootExplosionFile = new File( rootExplosionFileObj );
                 rootExplosionFile.save();
 
-                // TESTS delete
-                // const rootExplosionFile2 = new File({
-                //     '_id': 'e8434881-1f01-49a0-b6ca-6f25c8893e4e',
-                //     'mimeType': 'image/png',
-                //     'size': 999,
-                //     'dateCreated': 1462329089,
-                //     'lastModified': 1462329089,
-                //     'parents': ['f3d9a45f-6972-4a21-8a4b-073de06b6a4b'],
-                //     'name': 'explosion.png',
-                // });
-                // rootExplosionFile2.save();
-
-                const rootPlayerFile = new File({
-                    '_id': '4b82b9df-d461-485c-9e6a-bdf5f94ae717',
+                rootPlayerFileObj = {
+                    '_id': PLAYER_PNG,
                     'mimeType': 'image/png',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
-                    'parents': ['root'],
+                    'parents': [ROOT_FOLDER],
                     'name': 'player.png',
-                });
+                };
+                rootPlayerFile = new File( rootPlayerFileObj );
                 rootPlayerFile.save();
 
-                const animationsFolder = new File({
-                    '_id': '8d461483-e701-47ca-8788-c6210550fdb9',
+                animationsFolderObj = {
+                    '_id': ANIMATIONS_FOLDER,
                     'mimeType': 'folder',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
-                    'parents': ['root'],
+                    'parents': [ROOT_FOLDER],
                     'name': 'animations',
-                });
+                };
+                animationsFolder = new File( animationsFolderObj );
                 animationsFolder.save();
 
-                const fireballFile = new File({
-                    '_id': '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e',
+                fireballFileObj = {
+                    '_id': FIREBALL_GIF,
                     'mimeType': 'image/gif',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
-                    'parents': ['8d461483-e701-47ca-8788-c6210550fdb9'],
+                    'parents': [ANIMATIONS_FOLDER],
                     'name': 'fireball.gif',
-                });
+                };
+                fireballFile = new File( fireballFileObj );
                 fireballFile.save();
 
-                playerFile = {
-                    '_id': '614dd78b-0d7b-4777-8aa6-c9d20dfb3032',
+                playerFileObj = {
+                    '_id': PLAYER_GIF,
                     'mimeType': 'image/gif',
                     'size': 999,
                     'dateCreated': 1466368197000,
                     'lastModified': 1466368197000,
-                    'parents': ['8d461483-e701-47ca-8788-c6210550fdb9'],
+                    'parents': [ANIMATIONS_FOLDER],
                     'name': 'player.gif',
                 };
-                const playerFileObj = new File( playerFile );
-                playerFileObj.save();
+                playerFile = new File( playerFileObj );
+                playerFile.save();
 
-                const spritemapsFolder = new File({
-                    '_id': 'f3d9a45f-6972-4a21-8a4b-073de06b6a4b',
+                spritemapsFolderObj = {
+                    '_id': SPRITEMAPS_FOLDER,
                     'mimeType': 'folder',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
-                    'parents': ['root'],
+                    'parents': [ROOT_FOLDER],
                     'name': 'spritemaps',
-                });
+                };
+                spritemapsFolder = new File( spritemapsFolderObj );
                 spritemapsFolder.save();
 
-                const powerupFile = new File({
-                    '_id': '0dfa3088-2ab8-4a52-9c9f-3fa87c1f4ccb',
+                powerupFileObj = {
+                    '_id': POWERUP_PNG,
                     'mimeType': 'image/png',
                     'size': 999,
                     'dateCreated': 1462329089,
                     'lastModified': 1462329089,
-                    'parents': ['f3d9a45f-6972-4a21-8a4b-073de06b6a4b'],
+                    'parents': [SPRITEMAPS_FOLDER],
                     'name': 'powerup.png',
-                });
+                };
+                powerupFile = new File( powerupFileObj );
                 powerupFile.save();
 
                 // const permission2 = new Permission({
                 //     resourceType: 'file',
-                //     resourceId: '614dd78b-0d7b-4777-8aa6-c9d20dfb3032',
+                //     resourceId: PLAYER_GIF,
                 //     userId: 'userId',
                 //     read: true,
                 //     write: true,
@@ -169,7 +199,7 @@ describe( 'action', function() {
         File.remove({}).exec();
     });
 
-    describe.skip( 'misc', function() {
+    describe( 'misc', function() {
         it( 'should reject with a 404/resource not found error, with an empty path', ( done ) => {
             supertest( app )
             .get( '/' )
@@ -248,7 +278,7 @@ describe( 'action', function() {
 
         it( 'should return animations/fireball', ( done ) => {
             supertest( app )
-            .get( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .get( `/${FIREBALL_GIF}` )
             .set( 'Accept', 'image/gif' )
             .expect( 'Content-Type', /image\/gif/g )
             .parse( binaryParser )
@@ -259,7 +289,7 @@ describe( 'action', function() {
         });
     });
 
-    describe( 'read', function() {
+    describe.only( 'read', function() {
         let buffer;
 
         before( function() {
@@ -271,7 +301,7 @@ describe( 'action', function() {
 
         it( 'should return animations/player.gif', ( done ) => {
             supertest( app )
-            .get( '/614dd78b-0d7b-4777-8aa6-c9d20dfb3032' )
+            .get( `/${PLAYER_GIF}` )
             .query({ action: 'read' })
             .set( 'Accept', 'image/gif' )
             .expect( 'Content-Type', /image\/gif/g )
@@ -284,21 +314,74 @@ describe( 'action', function() {
 
         it( 'should return a list of child resources for a folder', ( done ) => {
             supertest( app )
-            .get( '/8d461483-e701-47ca-8788-c6210550fdb9' )
+            .get( `/${ANIMATIONS_FOLDER}` )
             .query({ action: 'read' })
             .set( 'Accept', 'application/vnd.api+json' )
             .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
             .expect( res =>
-                expect( res.body ).to.deep.equal([ '4d2df4ed-2d77-4bc2-ba94-1d999786aa1e', '614dd78b-0d7b-4777-8aa6-c9d20dfb3032' ])
+                expect( res.body ).to.deep.equal([ FIREBALL_GIF, PLAYER_GIF ])
             )
+            .expect( 200, done );
+        });
+
+        it( 'should return everything', ( done ) => {
+            supertest( app )
+            .get( `/${ROOT_FOLDER}` )
+            .query({
+                action: 'read',
+                parameters: {
+                    flags: 'r',
+                },
+            })
+            .set( 'Accept', 'application/vnd.api+json' )
+            .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
+            .expect( res => {
+                rootExplosionFileObj.__v = 0;
+                rootExplosionFileObj.dateCreated = JSON.stringify( rootExplosionFile._doc.dateCreated ).replace( /\"/g, '' );
+                rootExplosionFileObj.lastModified = JSON.stringify( rootExplosionFile._doc.lastModified ).replace( /\"/g, '' );
+
+                rootPlayerFileObj.__v = 0;
+                rootPlayerFileObj.dateCreated = JSON.stringify( rootPlayerFile._doc.dateCreated ).replace( /\"/g, '' );
+                rootPlayerFileObj.lastModified = JSON.stringify( rootPlayerFile._doc.lastModified ).replace( /\"/g, '' );
+
+                animationsFolderObj.__v = 0;
+                animationsFolderObj.dateCreated = JSON.stringify( animationsFolder._doc.dateCreated ).replace( /\"/g, '' );
+                animationsFolderObj.lastModified = JSON.stringify( animationsFolder._doc.lastModified ).replace( /\"/g, '' );
+
+                fireballFileObj.__v = 0;
+                fireballFileObj.dateCreated = JSON.stringify( fireballFile._doc.dateCreated ).replace( /\"/g, '' );
+                fireballFileObj.lastModified = JSON.stringify( fireballFile._doc.lastModified ).replace( /\"/g, '' );
+
+                playerFileObj.__v = 0;
+                playerFileObj.dateCreated = JSON.stringify( playerFile._doc.dateCreated ).replace( /\"/g, '' );
+                playerFileObj.lastModified = JSON.stringify( playerFile._doc.lastModified ).replace( /\"/g, '' );
+
+                spritemapsFolderObj.__v = 0;
+                spritemapsFolderObj.dateCreated = JSON.stringify( spritemapsFolder._doc.dateCreated ).replace( /\"/g, '' );
+                spritemapsFolderObj.lastModified = JSON.stringify( spritemapsFolder._doc.lastModified ).replace( /\"/g, '' );
+
+                powerupFileObj.__v = 0;
+                powerupFileObj.dateCreated = JSON.stringify( powerupFile._doc.dateCreated ).replace( /\"/g, '' );
+                powerupFileObj.lastModified = JSON.stringify( powerupFile._doc.lastModified ).replace( /\"/g, '' );
+
+                return expect( res.body ).to.deep.equal([
+                    rootExplosionFileObj,
+                    rootPlayerFileObj,
+                    animationsFolderObj,
+                    fireballFileObj,
+                    playerFileObj,
+                    spritemapsFolderObj,
+                    powerupFileObj,
+                ]);
+            })
             .expect( 200, done );
         });
     });
 
-    describe.skip( 'search', function() {
+    describe( 'search', function() {
         it( 'should return all files that match the search criteria in that folder with a 200 status', ( done ) => {
             supertest( app )
-            .get( '/8d461483-e701-47ca-8788-c6210550fdb9' )
+            .get( `/${ANIMATIONS_FOLDER}` )
             .query({
                 action: 'search',
                 parameters: {
@@ -308,18 +391,18 @@ describe( 'action', function() {
             .set( 'Accept', 'application/vnd.api+json' )
             .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
             .expect( res => {
-                expect( res.body ).to.have.property( '_id', '614dd78b-0d7b-4777-8aa6-c9d20dfb3032' );
+                expect( res.body ).to.have.property( '_id', PLAYER_GIF );
                 expect( res.body ).to.have.property( 'dateCreated', '2016-06-19T20:29:57.000Z' );
                 expect( res.body ).to.have.property( 'lastModified', '2016-06-19T20:29:57.000Z' );
                 expect( res.body ).to.have.property( 'mimeType', 'image/gif' );
-                // expect( res.body ).to.have.property( 'parents', [ '8d461483-e701-47ca-8788-c6210550fdb9' ]);
+                // expect( res.body ).to.have.property( 'parents', [ ANIMATIONS_FOLDER ]);
             })
             .expect( 200, done );
         });
 
         it( 'should return an empty array if nothing matches', ( done ) => {
             supertest( app )
-            .get( '/8d461483-e701-47ca-8788-c6210550fdb9' )
+            .get( `/${ANIMATIONS_FOLDER}` )
             .query({
                 action: 'search',
                 parameters: {
@@ -343,13 +426,13 @@ describe( 'action', function() {
             .query({
                 action: 'alias',
                 parameters: {
-                    rootId: 'root',
+                    rootId: ROOT_FOLDER,
                 },
             })
             .set( 'Accept', 'application/vnd.api+json' )
             .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
             .expect( res =>
-                expect( res.body ).to.deep.equal({ GUID: '8d461483-e701-47ca-8788-c6210550fdb9' })
+                expect( res.body ).to.deep.equal({ GUID: ANIMATIONS_FOLDER })
             )
             .expect( 200, done );
         });
@@ -358,23 +441,23 @@ describe( 'action', function() {
     describe( 'inspect', function() {
         it( 'should return all metadata of the resource', ( done ) => {
             supertest( app )
-            .get( '/614dd78b-0d7b-4777-8aa6-c9d20dfb3032' )
+            .get( `/${PLAYER_GIF}` )
             .query({ action: 'inspect' })
             .set( 'Accept', 'application/vnd.api+json' )
             .expect( 'Content-Type', /application\/vnd\.api\+json/gi )
             .expect( res => {
-                expect( res.body ).to.have.property( '_id', '614dd78b-0d7b-4777-8aa6-c9d20dfb3032' );
+                expect( res.body ).to.have.property( '_id', PLAYER_GIF );
                 expect( res.body ).to.have.property( 'dateCreated', '2016-06-19T20:29:57.000Z' );
                 expect( res.body ).to.have.property( 'lastModified', '2016-06-19T20:29:57.000Z' );
                 expect( res.body ).to.have.property( 'mimeType', 'image/gif' );
-                // expect( res.body ).to.have.property( 'parents', [ '8d461483-e701-47ca-8788-c6210550fdb9' ]);
+                // expect( res.body ).to.have.property( 'parents', [ ANIMATIONS_FOLDER ]);
             })
             .expect( 200, done );
         });
 
         it( 'should return selected metadata of the resource', ( done ) => {
             supertest( app )
-            .get( '/614dd78b-0d7b-4777-8aa6-c9d20dfb3032' )
+            .get( `/${PLAYER_GIF}` )
             .query({
                 action: 'inspect',
                 parameters: {
@@ -393,14 +476,14 @@ describe( 'action', function() {
         });
     });
 
-    describe.skip( 'download', function() {
+    describe( 'download', function() {
         it( 'should return a zipped copy of the resource', function() {});
     });
 
-    describe.skip( 'rename', function() {
+    describe( 'rename', function() {
         it( 'should return a 409/already exists error if a resource in that folder has that name already', ( done ) => {
             supertest( app )
-            .put( '/614dd78b-0d7b-4777-8aa6-c9d20dfb3032' )
+            .put( `/${PLAYER_GIF}` )
             .query({
                 action: 'rename',
                 parameters: {
@@ -420,7 +503,7 @@ describe( 'action', function() {
 
         it( 'should return a 200 status after it renames properly', ( done ) => {
             supertest( app )
-            .put( '/614dd78b-0d7b-4777-8aa6-c9d20dfb3032' )
+            .put( `/${PLAYER_GIF}` )
             .query({
                 action: 'rename',
                 parameters: {
@@ -436,14 +519,14 @@ describe( 'action', function() {
         });
     });
 
-    describe.skip( 'copy', ( done ) => {
+    describe( 'copy', ( done ) => {
         it( 'should return a 409/already exists error if a resource in the destination folder has that name already', function() {
             supertest( app )
-            .post( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .post( `${FIREBALL_GIF}` )
             .query({
                 action: 'copy',
                 parameters: {
-                    destination: '8d461483-e701-47ca-8788-c6210550fdb9',
+                    destination: ANIMATIONS_FOLDER,
                 },
             })
             .set( 'Accept', 'application/vnd.api+json' )
@@ -459,7 +542,7 @@ describe( 'action', function() {
 
         it( 'should return a 404/not found error if the destination folder doesnt exist', function() {
             supertest( app )
-            .post( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .post( `/${FIREBALL_GIF}` )
             .query({
                 action: 'copy',
                 parameters: {
@@ -479,11 +562,11 @@ describe( 'action', function() {
 
         it( 'should make a copy of the resource in the destination folder and return a 200 status', function() {
             supertest( app )
-            .post( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .post( `/${FIREBALL_GIF}` )
             .query({
                 action: 'copy',
                 parameters: {
-                    destination: 'f3d9a45f-6972-4a21-8a4b-073de06b6a4b',
+                    destination: SPRITEMAPS_FOLDER,
                 },
             })
             .set( 'Accept', 'application/vnd.api+json' )
@@ -493,14 +576,14 @@ describe( 'action', function() {
         });
     });
 
-    describe.skip( 'move', function() {
+    describe( 'move', function() {
         it( 'should return a 409/already exists error if a resource in the destination folder has that name already', ( done ) => {
             supertest( app )
-            .put( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .put( `/${FIREBALL_GIF}` )
             .query({
                 action: 'move',
                 parameters: {
-                    destination: '8d461483-e701-47ca-8788-c6210550fdb9',
+                    destination: ANIMATIONS_FOLDER,
                 },
             })
             .set( 'Accept', 'application/vnd.api+json' )
@@ -516,7 +599,7 @@ describe( 'action', function() {
 
         it( 'should return a 404/not found error if the destination folder doesnt exist', ( done ) => {
             supertest( app )
-            .put( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .put( `/${FIREBALL_GIF}` )
             .query({
                 action: 'move',
                 parameters: {
@@ -536,11 +619,11 @@ describe( 'action', function() {
 
         it( 'should move the resource to the destination folder and return a 200 status', ( done ) => {
             supertest( app )
-            .put( '/4d2df4ed-2d77-4bc2-ba94-1d999786aa1e' )
+            .put( `/${FIREBALL_GIF}` )
             .query({
                 action: 'move',
                 parameters: {
-                    destination: 'f3d9a45f-6972-4a21-8a4b-073de06b6a4b',
+                    destination: SPRITEMAPS_FOLDER,
                 },
             })
             .set( 'Accept', 'application/vnd.api+json' )
@@ -552,9 +635,9 @@ describe( 'action', function() {
 
     let testingGUID;
     describe( 'post', function() {
-        it.skip( 'should return a 409/already exists error if a resource in the destination folder has that name already', ( done ) => {
+        it( 'should return a 409/already exists error if a resource in the destination folder has that name already', ( done ) => {
             supertest( app )
-            .post( '/f3d9a45f-6972-4a21-8a4b-073de06b6a4b' )
+            .post( `/${SPRITEMAPS_FOLDER}` )
             .query({
                 action: 'create',
                 parameters: {
@@ -574,7 +657,7 @@ describe( 'action', function() {
             .expect( 409, done );
         });
 
-        it.skip( 'should return a 404/not found error if the destination folder doesnt exist', ( done ) => {
+        it( 'should return a 404/not found error if the destination folder doesnt exist', ( done ) => {
             supertest( app )
             .post( '/doesNotExist' )
             .query({
@@ -599,7 +682,7 @@ describe( 'action', function() {
         it( 'should upload a new file and return a 200 status', () => {
             return new Promise(( resolve, reject ) => {
                 request.post({
-                    url: `http://localhost:${process.env.APP_PORT}/f3d9a45f-6972-4a21-8a4b-073de06b6a4b`,
+                    url: `http://localhost:${process.env.APP_PORT}/${SPRITEMAPS_FOLDER}`,
                     formData: {
                         // Pass data via Streams
                         content: fs.createReadStream( `${__dirname}/testfiles/explosion.png` ),
@@ -619,9 +702,9 @@ describe( 'action', function() {
             });
         });
 
-        it.skip( 'should create a folder', ( done ) => {
+        it( 'should create a folder', ( done ) => {
             supertest( app )
-            .post( '/f3d9a45f-6972-4a21-8a4b-073de06b6a4b' )
+            .post( `/${SPRITEMAPS_FOLDER}` )
             .query({
                 action: 'create',
                 parameters: {
@@ -637,10 +720,10 @@ describe( 'action', function() {
         });
     });
 
-    describe.skip( 'bulk', function() {});
+    describe( 'bulk', function() {});
 
     describe( 'put', function() {
-        it.skip( 'should return a 404/not found when the resource doesnt exist', ( done ) => {
+        it( 'should return a 404/not found when the resource doesnt exist', ( done ) => {
             supertest( app )
             .put( '/doesNotExist' )
             .query({
@@ -692,6 +775,6 @@ describe( 'action', function() {
             .expect( 200, done );
         });
 
-        it.skip( 'should delete the folder and all subchildren recursively', function() {});
+        it( 'should delete the folder and all subchildren recursively', function() {});
     });
 });
